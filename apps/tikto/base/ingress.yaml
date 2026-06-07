@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tikto
+  labels:
+    app.kubernetes.io/name: tikto
+    app.kubernetes.io/component: web
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: tikto.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: tikto
+                port:
+                  name: http
+

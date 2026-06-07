@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: tikto-dev
+  namespace: argocd
+spec:
+  project: tikto
+  source:
+    repoURL: https://github.com/Flavoriy/gitops-manifest.git
+    targetRevision: main
+    path: apps/tikto/overlays/dev
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: tikto-dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PruneLast=true
+

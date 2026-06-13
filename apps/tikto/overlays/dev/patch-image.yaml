@@ -7,5 +7,5 @@ spec:
     spec:
       containers:
         - name: tikto
-          image: ghcr.io/flavoriy/tikto:dev-bootstrap
+          image: ghcr.io/flavoriy/tikto:dev-36565448d22f-44
 

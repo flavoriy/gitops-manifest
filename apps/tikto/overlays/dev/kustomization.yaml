@@ -10,6 +10,8 @@ resources:
   - resourcequota.yaml
   - limitrange.yaml
   - networkpolicy.yaml
+  - secret-store.yaml
+  - external-secret.yaml
 
 patches:
   - path: patch-image.yaml

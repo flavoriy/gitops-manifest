@@ -4,7 +4,7 @@ metadata:
   name: tikto-prod
   namespace: argocd
 spec:
-  project: tikto
+  project: default
   source:
     repoURL: https://github.com/Flavoriy/gitops-manifest.git
     targetRevision: main

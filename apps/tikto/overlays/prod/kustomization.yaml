@@ -7,9 +7,6 @@ resources:
   - ../../base
   - namespace.yaml
   - configmap.yaml
-  - resourcequota.yaml
-  - limitrange.yaml
-  - networkpolicy.yaml
 
 patches:
   - path: patch-image.yaml

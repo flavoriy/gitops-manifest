@@ -1,70 +1,29 @@
-# GitOps manifests
+# TikTo GitOps Manifests
 
-This repository is the deployment source watched by ArgoCD.
+Thư mục này chứa các cấu hình Kubernetes của ứng dụng **TikTo**, được quản lý và tự động triển khai bởi **ArgoCD**.
 
-## Layout
+## Cấu trúc thư mục tối giản (Simplified Layout)
 
-```text
-apps/tikto/base                  # Shared Kubernetes manifests
-apps/tikto/overlays/dev          # Dev namespace or dev cluster config
-apps/tikto/overlays/prod         # Prod namespace or prod cluster config
-argocd/projects/tikto.yaml       # ArgoCD project boundary
-argocd/applications/tikto-dev.yaml
-argocd/applications/tikto-prod.yaml
-```
+* **`apps/tikto/base`**: Các manifest gốc dùng chung cho mọi môi trường (Deployment, Service, Ingress).
+* **`apps/tikto/overlays/dev`**: Cấu hình chi tiết cho môi trường **dev** (Namespace `tikto-dev`, NodePort `300443`, cấu hình tự động đồng bộ secret từ AWS).
+* **`apps/tikto/overlays/prod`**: Cấu hình chi tiết cho môi trường **prod** (Namespace `tikto-prod`).
+* **`argocd/applications`**: Khai báo ArgoCD Applications (`tikto-dev`, `tikto-prod`) để deploy trực tiếp lên cluster.
 
-## Before first sync
+---
 
-1. Replace `https://github.com/Flavoriy/gitops-manifest.git` in `argocd/` with the real manifest repository URL.
-2. Replace `dev.tikto.example.com` and `tikto.example.com` with real DNS names or local hosts entries.
-3. Create the runtime secret in each target namespace. Do not commit real secrets.
+## Cách triển khai ứng dụng qua ArgoCD
+
+Chạy lệnh sau trên cluster để deploy các ứng dụng:
 
 ```bash
-kubectl create namespace tikto-dev
-kubectl apply -f apps/tikto/overlays/dev/secret.example.yaml
-
-kubectl create namespace tikto-prod
-kubectl apply -f apps/tikto/overlays/prod/secret.example.yaml
-```
-
-For real production, replace the example Secret flow with Sealed Secrets, External Secrets, or SOPS.
-
-## ArgoCD
-
-If ArgoCD runs inside each cluster, keep:
-
-```yaml
-destination:
-  server: https://kubernetes.default.svc
-```
-
-If one central ArgoCD controls both dev and prod clusters, register both clusters in ArgoCD and replace the prod/dev `destination.server` values with the registered cluster API server URLs or cluster names.
-
-Install the ArgoCD objects:
-
-```bash
-kubectl apply -f argocd/projects/tikto.yaml
 kubectl apply -f argocd/applications/tikto-dev.yaml
 kubectl apply -f argocd/applications/tikto-prod.yaml
 ```
 
-## Jenkins image updates
+---
 
-The current Jenkins shared library can update a manifest file by replacing a line that starts with `image: ghcr.io/flavoriy/tikto`.
+## Quản lý Secrets
 
-Use these files:
-
-```text
-Dev:  apps/tikto/overlays/dev/patch-image.yaml
-Prod: apps/tikto/overlays/prod/patch-image.yaml
-```
-
-Recommended flow:
-
-```text
-develop -> Jenkins updates dev patch -> ArgoCD syncs dev
-main/prod promotion -> create PR updating prod patch -> approval -> ArgoCD syncs prod
-```
-
-Prod should promote the exact image tag already tested in dev.
-
+Dự án sử dụng **External Secrets Operator (ESO)** để tự động đồng bộ các biến bảo mật từ AWS Secrets Manager (`tikto/dev`) vào trong Kubernetes Secret (`tikto-secret`).
+* Không cần tạo secret thủ công.
+* Tuyệt đối không commit giá trị mật khẩu/token dạng plain-text lên Git.

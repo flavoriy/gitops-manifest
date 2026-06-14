@@ -13,10 +13,8 @@ resources:
 patches:
   - path: patch-image.yaml
   - path: patch-replicas.yaml
-  - path: patch-ingress.yaml
   - path: patch-service.yaml
 
 commonLabels:
   app.kubernetes.io/instance: tikto-dev
   app.kubernetes.io/environment: dev
-

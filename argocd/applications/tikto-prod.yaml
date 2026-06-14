@@ -3,6 +3,8 @@ kind: Application
 metadata:
   name: tikto-prod
   namespace: argocd
+  annotations:
+    link.argocd.argoproj.io/external-link: http://18.136.110.57:30443
 spec:
   project: default
   source:
@@ -19,4 +21,3 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - PruneLast=true
-

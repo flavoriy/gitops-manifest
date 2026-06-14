@@ -2,6 +2,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: tikto
+  annotations:
+    link.argocd.argoproj.io/external-link: http://18.139.31.55:30443
 spec:
   type: NodePort
   ports:

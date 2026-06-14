@@ -4,8 +4,6 @@ kind: Kustomization
 resources:
   - deployment.yaml
   - service.yaml
-  - ingress.yaml
 
 commonLabels:
   app.kubernetes.io/part-of: tikto
-

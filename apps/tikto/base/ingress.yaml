@@ -8,8 +8,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-    - host: tikto.example.com
-      http:
+    - http:
         paths:
           - path: /
             pathType: Prefix
@@ -18,4 +17,3 @@ spec:
                 name: tikto
                 port:
                   name: http
-

@@ -4,8 +4,7 @@ metadata:
   name: tikto
 spec:
   rules:
-    - host: 18.139.31.55
-      http:
+    - http:
         paths:
           - path: /
             pathType: Prefix

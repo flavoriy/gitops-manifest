@@ -6,6 +6,5 @@ data:
   APP_ENV: prod
   NODE_ENV: production
   NEXT_TELEMETRY_DISABLED: "1"
-  NEXT_PUBLIC_APP_URL: https://tikto.example.com
+  NEXT_PUBLIC_APP_URL: http://18.136.110.57:30443
   NEXT_PUBLIC_SUPABASE_URL: https://replace-prod-project.supabase.co
-

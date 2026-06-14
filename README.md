@@ -202,6 +202,39 @@ EC2 metadata options must allow pods to use the node instance profile:
 
 Do not grant broad `ec2:*` permissions for External Secrets; it only needs Secrets Manager read access, plus KMS decrypt when applicable.
 
+If `tikto` pods show `CreateContainerConfigError` with `secret "tikto-secret" not found`, check External Secrets first:
+
+```bash
+kubectl -n tikto-prod get secretstore,externalsecret,secret
+kubectl -n tikto-prod describe secretstore aws-secretsmanager
+kubectl -n tikto-prod describe externalsecret tikto-secret
+kubectl -n tikto-prod get events --sort-by=.lastTimestamp
+```
+
+The event `failed to refresh cached credentials, no EC2 IMDS role found` means the `external-secrets` controller cannot read AWS credentials from the node instance profile. Find the node running the controller:
+
+```bash
+kubectl -n external-secrets get pods -o wide
+```
+
+On that EC2 node, verify IMDS returns an IAM role:
+
+```bash
+TOKEN=$(curl -s -X PUT "http://169.254.169.254/latest/api/token" \
+  -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
+
+curl -s -H "X-aws-ec2-metadata-token: $TOKEN" \
+  http://169.254.169.254/latest/meta-data/iam/security-credentials/
+```
+
+If the host returns a role but External Secrets still fails, re-check the EC2 metadata hop limit and restart the controller:
+
+```bash
+kubectl -n external-secrets rollout restart deployment/external-secrets
+kubectl -n external-secrets rollout status deployment/external-secrets --timeout=180s
+kubectl apply -k apps/tikto/overlays/prod
+```
+
 Do not commit real database URLs, API tokens, OAuth client secrets, signing keys, or encryption keys. Use a cluster secret manager, External Secrets Operator, Sealed Secrets, or another approved secret delivery mechanism for real environments.
 
 ## Operational Notes

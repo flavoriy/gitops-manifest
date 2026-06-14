@@ -24,7 +24,7 @@ spec:
         app.kubernetes.io/component: web
     spec:
       securityContext:
-        runAsNonRoot: true
+        runAsNonRoot: false
       containers:
         - name: tikto
           image: ghcr.io/flavoriy/tikto:bootstrap

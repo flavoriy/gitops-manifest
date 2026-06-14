@@ -7,10 +7,12 @@ resources:
   - ../../base
   - namespace.yaml
   - configmap.yaml
+  - pdb.yaml
 
 patches:
   - path: patch-image.yaml
   - path: patch-replicas.yaml
+  - path: patch-scheduling.yaml
   - path: patch-service.yaml
 
 commonLabels:

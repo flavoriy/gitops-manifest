@@ -4,7 +4,7 @@ metadata:
   name: tikto
 spec:
   rules:
-    - host: dev.tikto.example.com
+    - host: 18.139.31.55
       http:
         paths:
           - path: /

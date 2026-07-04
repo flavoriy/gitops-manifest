@@ -7,7 +7,7 @@ spec:
     spec:
       containers:
         - name: tikto
-          image: ghcr.io/flavoriy/tikto:v0.0.1
+          image: ghcr.io/flavoriy/tikto-web:bootstrap
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: profile-api
-          image: ghcr.io/flavoriy/tikto:v0.0.1
+          image: ghcr.io/flavoriy/tikto-profile:bootstrap
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -29,7 +29,7 @@ spec:
     spec:
       containers:
         - name: tasks-api
-          image: ghcr.io/flavoriy/tikto:v0.0.1
+          image: ghcr.io/flavoriy/tikto-tasks:bootstrap
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -40,7 +40,7 @@ spec:
     spec:
       containers:
         - name: calendar-api
-          image: ghcr.io/flavoriy/tikto:v0.0.1
+          image: ghcr.io/flavoriy/tikto-calendar:bootstrap
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -51,4 +51,4 @@ spec:
     spec:
       containers:
         - name: dashboard-api
-          image: ghcr.io/flavoriy/tikto:v0.0.1
+          image: ghcr.io/flavoriy/tikto-dashboard:bootstrap

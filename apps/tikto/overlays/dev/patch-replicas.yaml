@@ -4,4 +4,31 @@ metadata:
   name: tikto
 spec:
   replicas: 1
-
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tikto-profile-api
+spec:
+  replicas: 1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tikto-tasks-api
+spec:
+  replicas: 1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tikto-calendar-api
+spec:
+  replicas: 1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tikto-dashboard-api
+spec:
+  replicas: 1

@@ -8,4 +8,47 @@ spec:
       containers:
         - name: tikto
           image: ghcr.io/flavoriy/tikto:v0.0.1
-
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tikto-profile-api
+spec:
+  template:
+    spec:
+      containers:
+        - name: profile-api
+          image: ghcr.io/flavoriy/tikto:v0.0.1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tikto-tasks-api
+spec:
+  template:
+    spec:
+      containers:
+        - name: tasks-api
+          image: ghcr.io/flavoriy/tikto:v0.0.1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tikto-calendar-api
+spec:
+  template:
+    spec:
+      containers:
+        - name: calendar-api
+          image: ghcr.io/flavoriy/tikto:v0.0.1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tikto-dashboard-api
+spec:
+  template:
+    spec:
+      containers:
+        - name: dashboard-api
+          image: ghcr.io/flavoriy/tikto:v0.0.1

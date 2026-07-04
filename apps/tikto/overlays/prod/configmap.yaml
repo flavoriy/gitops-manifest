@@ -6,5 +6,9 @@ data:
   APP_ENV: prod
   NODE_ENV: production
   NEXT_TELEMETRY_DISABLED: "1"
+  TIKTO_PROFILE_API_URL: http://tikto-profile-api:4100
+  TIKTO_TASKS_API_URL: http://tikto-tasks-api:4200
+  TIKTO_CALENDAR_API_URL: http://tikto-calendar-api:4300
+  TIKTO_DASHBOARD_API_URL: http://tikto-dashboard-api:4400
   NEXT_PUBLIC_APP_URL: http://18.136.110.57:30443
   NEXT_PUBLIC_SUPABASE_URL: https://replace-prod-project.supabase.co

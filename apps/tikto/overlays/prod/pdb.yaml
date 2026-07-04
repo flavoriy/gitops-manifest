@@ -1,10 +1,50 @@
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
-  name: tikto
+  name: tikto-web-pdb
 spec:
   minAvailable: 2
   selector:
     matchLabels:
       app.kubernetes.io/name: tikto
       app.kubernetes.io/component: web
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: tikto-profile-pdb
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tikto-profile-api
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: tikto-tasks-pdb
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tikto-tasks-api
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: tikto-calendar-pdb
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tikto-calendar-api
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: tikto-dashboard-pdb
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tikto-dashboard-api

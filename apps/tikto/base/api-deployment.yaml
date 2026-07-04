@@ -1,0 +1,295 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tikto-profile-api
+  labels:
+    app.kubernetes.io/name: tikto
+    app.kubernetes.io/component: profile-api
+spec:
+  replicas: 1
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tikto
+      app.kubernetes.io/component: profile-api
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: tikto
+        app.kubernetes.io/component: profile-api
+    spec:
+      securityContext:
+        runAsNonRoot: false
+      containers:
+        - name: profile-api
+          image: ghcr.io/flavoriy/tikto:bootstrap
+          imagePullPolicy: IfNotPresent
+          command:
+            - npm
+            - run
+            - profile-api:start
+          ports:
+            - name: http
+              containerPort: 4100
+          env:
+            - name: PORT
+              value: "4100"
+          envFrom:
+            - configMapRef:
+                name: tikto-config
+            - secretRef:
+                name: tikto-secret
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 4
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 50m
+              memory: 160Mi
+            limits:
+              cpu: 300m
+              memory: 320Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tikto-tasks-api
+  labels:
+    app.kubernetes.io/name: tikto
+    app.kubernetes.io/component: tasks-api
+spec:
+  replicas: 1
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tikto
+      app.kubernetes.io/component: tasks-api
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: tikto
+        app.kubernetes.io/component: tasks-api
+    spec:
+      securityContext:
+        runAsNonRoot: false
+      containers:
+        - name: tasks-api
+          image: ghcr.io/flavoriy/tikto:bootstrap
+          imagePullPolicy: IfNotPresent
+          command:
+            - npm
+            - run
+            - tasks-api:start
+          ports:
+            - name: http
+              containerPort: 4200
+          env:
+            - name: PORT
+              value: "4200"
+          envFrom:
+            - configMapRef:
+                name: tikto-config
+            - secretRef:
+                name: tikto-secret
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 4
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 75m
+              memory: 192Mi
+            limits:
+              cpu: 400m
+              memory: 384Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tikto-calendar-api
+  labels:
+    app.kubernetes.io/name: tikto
+    app.kubernetes.io/component: calendar-api
+spec:
+  replicas: 1
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tikto
+      app.kubernetes.io/component: calendar-api
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: tikto
+        app.kubernetes.io/component: calendar-api
+    spec:
+      securityContext:
+        runAsNonRoot: false
+      containers:
+        - name: calendar-api
+          image: ghcr.io/flavoriy/tikto:bootstrap
+          imagePullPolicy: IfNotPresent
+          command:
+            - npm
+            - run
+            - calendar-api:start
+          ports:
+            - name: http
+              containerPort: 4300
+          env:
+            - name: PORT
+              value: "4300"
+          envFrom:
+            - configMapRef:
+                name: tikto-config
+            - secretRef:
+                name: tikto-secret
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 4
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 75m
+              memory: 192Mi
+            limits:
+              cpu: 400m
+              memory: 384Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tikto-dashboard-api
+  labels:
+    app.kubernetes.io/name: tikto
+    app.kubernetes.io/component: dashboard-api
+spec:
+  replicas: 1
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tikto
+      app.kubernetes.io/component: dashboard-api
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: tikto
+        app.kubernetes.io/component: dashboard-api
+    spec:
+      securityContext:
+        runAsNonRoot: false
+      containers:
+        - name: dashboard-api
+          image: ghcr.io/flavoriy/tikto:bootstrap
+          imagePullPolicy: IfNotPresent
+          command:
+            - npm
+            - run
+            - dashboard-api:start
+          ports:
+            - name: http
+              containerPort: 4400
+          env:
+            - name: PORT
+              value: "4400"
+          envFrom:
+            - configMapRef:
+                name: tikto-config
+            - secretRef:
+                name: tikto-secret
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 4
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 50m
+              memory: 160Mi
+            limits:
+              cpu: 300m
+              memory: 320Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL

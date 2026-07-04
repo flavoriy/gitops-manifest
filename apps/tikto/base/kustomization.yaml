@@ -4,6 +4,8 @@ kind: Kustomization
 resources:
   - deployment.yaml
   - service.yaml
+  - api-deployment.yaml
+  - api-service.yaml
 
 commonLabels:
   app.kubernetes.io/part-of: tikto

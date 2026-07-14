@@ -1,0 +1,35 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tikto-ingress
+  namespace: tikto-prod
+  annotations:
+    # Use AWS Application Load Balancer (ALB)
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    # Enable SSL Redirect if HTTPS is configured (Optional)
+    # alb.ingress.kubernetes.io/ssl-redirect: '443'
+    # Use ALB action annotation to routing between Stable and Canary services
+    alb.ingress.kubernetes.io/actions.tikto: >
+      {
+        "Type": "forward",
+        "ForwardConfig": {
+          "TargetGroups": [
+            { "Weight": 0 },
+            { "Weight": 0 }
+          ]
+        }
+      }
+spec:
+  ingressClassName: alb
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: tikto
+                port:
+                  name: use-annotation

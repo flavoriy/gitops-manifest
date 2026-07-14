@@ -10,12 +10,23 @@ resources:
   - secret-store.yaml
   - external-secret.yaml
   - pdb.yaml
+  - ingress.yaml
+  - services-canary.yaml
+  - rollout.yaml
+  - analysis-smoke-test.yaml
 
 patches:
   - path: patch-image.yaml
   - path: patch-replicas.yaml
   - path: patch-scheduling.yaml
   - path: patch-service.yaml
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: tikto
+    patch: |-
+      $patch: delete
 
 commonLabels:
   app.kubernetes.io/instance: tikto-prod

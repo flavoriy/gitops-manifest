@@ -3,11 +3,7 @@ kind: Service
 metadata:
   name: tikto
   annotations:
-    link.argocd.argoproj.io/external-link: http://18.136.110.57:30443
+    link.argocd.argoproj.io/external-link: http://tikto-prod.example.com
 spec:
-  type: NodePort
-  ports:
-    - name: http
-      port: 80
-      targetPort: http
-      nodePort: 30443
+  type: ClusterIP
+

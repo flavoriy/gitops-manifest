@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: tikto-smoke-test-template
+  namespace: tikto-prod
+spec:
+  metrics:
+  - name: run-smoke-test
+    failureLimit: 0
+    provider:
+      job:
+        spec:
+          template:
+            spec:
+              containers:
+              - name: traffic-generator
+                image: curlimages/curl:latest
+                command: 
+                - sh
+                - -c
+                - |
+                  echo "🚀 Starting automated smoke tests against Canary..."
+                  for i in $(seq 1 200); do
+                    curl -s -f http://tikto-canary:80/api/health || {
+                      echo "❌ Smoke test FAILED at request #$i! Canary API returned an error."
+                      exit 1
+                    }
+                    sleep 0.1
+                  done
+                  echo "✅ Smoke test PASSED successfully with 200 requests!"
+              restartPolicy: Never
+          backoffLimit: 0

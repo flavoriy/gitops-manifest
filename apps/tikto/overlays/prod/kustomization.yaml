@@ -27,6 +27,10 @@ patches:
       name: tikto
     patch: |-
       $patch: delete
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: tikto
 
 commonLabels:
   app.kubernetes.io/instance: tikto-prod

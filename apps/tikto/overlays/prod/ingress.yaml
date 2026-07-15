@@ -7,7 +7,7 @@ metadata:
     # Use AWS Application Load Balancer (ALB)
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
-    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
     # Enable SSL Redirect if HTTPS is configured (Optional)
     # alb.ingress.kubernetes.io/ssl-redirect: '443'
     # Use ALB action annotation to routing between Stable and Canary services

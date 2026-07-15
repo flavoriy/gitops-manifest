@@ -32,6 +32,8 @@ spec:
       labels:
         app.kubernetes.io/name: tikto
         app.kubernetes.io/component: web
+        app.kubernetes.io/instance: tikto-prod
+        app.kubernetes.io/environment: prod
     spec:
       securityContext:
         runAsNonRoot: false

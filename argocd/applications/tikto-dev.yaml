@@ -12,7 +12,7 @@ spec:
     targetRevision: main
     path: apps/tikto/overlays/dev
   destination:
-    server: https://kubernetes.default.svc
+    name: k3s-dev
     namespace: tikto-dev
   syncPolicy:
     automated:

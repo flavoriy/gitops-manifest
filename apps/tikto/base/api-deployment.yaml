@@ -32,7 +32,7 @@ spec:
           command:
             - npm
             - run
-            - profile-api:start
+            - service:profile:start
           ports:
             - name: http
               containerPort: 4100
@@ -106,7 +106,7 @@ spec:
           command:
             - npm
             - run
-            - tasks-api:start
+            - service:tasks:start
           ports:
             - name: http
               containerPort: 4200
@@ -180,7 +180,7 @@ spec:
           command:
             - npm
             - run
-            - calendar-api:start
+            - service:calendar:start
           ports:
             - name: http
               containerPort: 4300
@@ -254,7 +254,7 @@ spec:
           command:
             - npm
             - run
-            - dashboard-api:start
+            - service:dashboard:start
           ports:
             - name: http
               containerPort: 4400

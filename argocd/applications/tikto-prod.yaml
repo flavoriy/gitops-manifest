@@ -19,3 +19,9 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - PruneLast=true
+  ignoreDifferences:
+    - group: networking.k8s.io
+      kind: Ingress
+      name: tikto-ingress
+      jsonPointers:
+        - /metadata/annotations/alb.ingress.kubernetes.io~1actions.tikto

@@ -52,3 +52,14 @@ spec:
       containers:
         - name: dashboard-api
           image: ghcr.io/flavoriy/tikto-dashboard:dev-22-008cd2757137f9d0c0677d3bee4779c74fc76d2f
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tikto-gateway
+spec:
+  template:
+    spec:
+      containers:
+        - name: gateway
+          image: ghcr.io/flavoriy/tikto-gateway:dev-22-008cd2757137f9d0c0677d3bee4779c74fc76d2f

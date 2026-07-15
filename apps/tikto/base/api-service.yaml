@@ -65,3 +65,20 @@ spec:
     - name: http
       port: 4400
       targetPort: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tikto-gateway
+  labels:
+    app.kubernetes.io/name: tikto
+    app.kubernetes.io/component: gateway
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: tikto
+    app.kubernetes.io/component: gateway
+  ports:
+    - name: http
+      port: 4000
+      targetPort: http

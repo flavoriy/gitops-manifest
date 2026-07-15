@@ -32,3 +32,10 @@ metadata:
   name: tikto-dashboard-api
 spec:
   replicas: 2
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tikto-gateway
+spec:
+  replicas: 2

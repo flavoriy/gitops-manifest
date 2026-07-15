@@ -20,6 +20,16 @@ spec:
                 - -c
                 - |
                   echo "🚀 Starting automated smoke tests against Canary..."
+                  echo "⏳ Waiting for Canary service to be ready (max 300s)..."
+                  for attempt in $(seq 1 150); do
+                    if curl -s -f --connect-timeout 2 http://tikto-canary:80/api/health > /dev/null; then
+                      echo "💚 Canary service is ready!"
+                      break
+                    fi
+                    echo "...Canary service not ready yet, retrying in 2 seconds (attempt $attempt/150)..."
+                    sleep 2
+                  done
+
                   for i in $(seq 1 200); do
                     curl -s -f http://tikto-canary:80/api/health || {
                       echo "❌ Smoke test FAILED at request #$i! Canary API returned an error."

@@ -33,10 +33,10 @@ spec:
             - name: http
               containerPort: 3000
           envFrom:
-            - configMapRef:
-                name: tikto-config
             - secretRef:
                 name: tikto-secret
+            - configMapRef:
+                name: tikto-config
           readinessProbe:
             httpGet:
               path: /api/health

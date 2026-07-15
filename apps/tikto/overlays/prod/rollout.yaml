@@ -5,6 +5,8 @@ metadata:
 spec:
   strategy:
     canary:
+      stableService: tikto-stable
+      canaryService: tikto-canary
       trafficRouting:
         alb:
           ingress: tikto-ingress

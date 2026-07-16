@@ -8,19 +8,6 @@ metadata:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
-    # Enable SSL Redirect if HTTPS is configured (Optional)
-    # alb.ingress.kubernetes.io/ssl-redirect: '443'
-    # Use ALB action annotation to routing between Stable and Canary services
-    alb.ingress.kubernetes.io/actions.tikto: >
-      {
-        "Type": "forward",
-        "ForwardConfig": {
-          "TargetGroups": [
-            { "Weight": 0 },
-            { "Weight": 0 }
-          ]
-        }
-      }
 spec:
   ingressClassName: alb
   rules:
@@ -30,6 +17,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: tikto
+                name: istio-ingress
                 port:
-                  name: use-annotation
+                  number: 80

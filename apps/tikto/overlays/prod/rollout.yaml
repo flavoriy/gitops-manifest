@@ -8,10 +8,11 @@ spec:
       stableService: tikto-stable
       canaryService: tikto-canary
       trafficRouting:
-        alb:
-          ingress: tikto-ingress
-          servicePort: 80
-          rootService: tikto
+        istio:
+          virtualService:
+            name: tikto-virtual-service
+            routes:
+              - primary
       analysis:
         templates:
           - templateName: tikto-smoke-test-template

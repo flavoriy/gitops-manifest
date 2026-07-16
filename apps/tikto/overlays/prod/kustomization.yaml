@@ -14,6 +14,8 @@ resources:
   - services-canary.yaml
   - rollout.yaml
   - analysis-smoke-test.yaml
+  - istio-gateway.yaml
+  - istio-virtualservice.yaml
 
 patches:
   - path: patch-image.yaml

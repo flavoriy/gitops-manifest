@@ -10,32 +10,32 @@ kind: Rollout
 metadata:
   name: tikto-profile-api
 spec:
-  replicas: 2
+  replicas: 1
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Rollout
 metadata:
   name: tikto-tasks-api
 spec:
-  replicas: 2
+  replicas: 1
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Rollout
 metadata:
   name: tikto-calendar-api
 spec:
-  replicas: 2
+  replicas: 1
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Rollout
 metadata:
   name: tikto-dashboard-api
 spec:
-  replicas: 2
+  replicas: 1
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Rollout
 metadata:
   name: tikto-gateway
 spec:
-  replicas: 2
+  replicas: 1

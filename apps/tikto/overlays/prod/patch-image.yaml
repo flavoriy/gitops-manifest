@@ -228,6 +228,8 @@ spec:
           env:
             - name: PORT
               value: "4400"
+            - name: DEMO_PROMOTE
+              value: "true"
           envFrom:
             - secretRef:
                 name: tikto-secret

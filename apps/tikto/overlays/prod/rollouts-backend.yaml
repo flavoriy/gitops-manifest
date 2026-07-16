@@ -9,6 +9,8 @@ spec:
     matchLabels:
       app.kubernetes.io/name: tikto
       app.kubernetes.io/component: profile-api
+      app.kubernetes.io/environment: prod
+      app.kubernetes.io/instance: tikto-prod
   strategy:
     canary:
       stableService: tikto-profile-api-stable
@@ -31,6 +33,8 @@ spec:
       labels:
         app.kubernetes.io/name: tikto
         app.kubernetes.io/component: profile-api
+        app.kubernetes.io/environment: prod
+        app.kubernetes.io/instance: tikto-prod
     spec:
       securityContext:
         runAsNonRoot: false
@@ -92,6 +96,8 @@ spec:
     matchLabels:
       app.kubernetes.io/name: tikto
       app.kubernetes.io/component: tasks-api
+      app.kubernetes.io/environment: prod
+      app.kubernetes.io/instance: tikto-prod
   strategy:
     canary:
       stableService: tikto-tasks-api-stable
@@ -114,6 +120,8 @@ spec:
       labels:
         app.kubernetes.io/name: tikto
         app.kubernetes.io/component: tasks-api
+        app.kubernetes.io/environment: prod
+        app.kubernetes.io/instance: tikto-prod
     spec:
       securityContext:
         runAsNonRoot: false
@@ -175,6 +183,8 @@ spec:
     matchLabels:
       app.kubernetes.io/name: tikto
       app.kubernetes.io/component: calendar-api
+      app.kubernetes.io/environment: prod
+      app.kubernetes.io/instance: tikto-prod
   strategy:
     canary:
       stableService: tikto-calendar-api-stable
@@ -197,6 +207,8 @@ spec:
       labels:
         app.kubernetes.io/name: tikto
         app.kubernetes.io/component: calendar-api
+        app.kubernetes.io/environment: prod
+        app.kubernetes.io/instance: tikto-prod
     spec:
       securityContext:
         runAsNonRoot: false
@@ -258,6 +270,8 @@ spec:
     matchLabels:
       app.kubernetes.io/name: tikto
       app.kubernetes.io/component: dashboard-api
+      app.kubernetes.io/environment: prod
+      app.kubernetes.io/instance: tikto-prod
   strategy:
     canary:
       stableService: tikto-dashboard-api-stable
@@ -280,6 +294,8 @@ spec:
       labels:
         app.kubernetes.io/name: tikto
         app.kubernetes.io/component: dashboard-api
+        app.kubernetes.io/environment: prod
+        app.kubernetes.io/instance: tikto-prod
     spec:
       securityContext:
         runAsNonRoot: false
@@ -341,6 +357,8 @@ spec:
     matchLabels:
       app.kubernetes.io/name: tikto
       app.kubernetes.io/component: gateway
+      app.kubernetes.io/environment: prod
+      app.kubernetes.io/instance: tikto-prod
   strategy:
     canary:
       stableService: tikto-gateway-stable
@@ -363,6 +381,8 @@ spec:
       labels:
         app.kubernetes.io/name: tikto
         app.kubernetes.io/component: gateway
+        app.kubernetes.io/environment: prod
+        app.kubernetes.io/instance: tikto-prod
     spec:
       securityContext:
         runAsNonRoot: false

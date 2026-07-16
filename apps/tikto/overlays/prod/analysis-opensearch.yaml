@@ -8,7 +8,6 @@ spec:
     - name: canary-hash
   metrics:
   - name: check-canary-errors
-    interval: 1m
     failureLimit: 1
     provider:
       job:

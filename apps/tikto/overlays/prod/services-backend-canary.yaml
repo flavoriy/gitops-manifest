@@ -34,7 +34,7 @@ spec:
   hosts:
     - tikto-gateway
   http:
-    - name: primary
+    - name: canary-header
       match:
         - headers:
             x-canary:
@@ -44,7 +44,8 @@ spec:
             host: tikto-gateway-canary
             port:
               number: 4000
-    - route:
+    - name: primary
+      route:
         - destination:
             host: tikto-gateway-stable
             port:
@@ -92,7 +93,7 @@ spec:
   hosts:
     - tikto-profile-api
   http:
-    - name: primary
+    - name: canary-header
       match:
         - headers:
             x-canary:
@@ -102,7 +103,8 @@ spec:
             host: tikto-profile-api-canary
             port:
               number: 4100
-    - route:
+    - name: primary
+      route:
         - destination:
             host: tikto-profile-api-stable
             port:
@@ -150,7 +152,7 @@ spec:
   hosts:
     - tikto-tasks-api
   http:
-    - name: primary
+    - name: canary-header
       match:
         - headers:
             x-canary:
@@ -160,7 +162,8 @@ spec:
             host: tikto-tasks-api-canary
             port:
               number: 4200
-    - route:
+    - name: primary
+      route:
         - destination:
             host: tikto-tasks-api-stable
             port:
@@ -208,7 +211,7 @@ spec:
   hosts:
     - tikto-calendar-api
   http:
-    - name: primary
+    - name: canary-header
       match:
         - headers:
             x-canary:
@@ -218,7 +221,8 @@ spec:
             host: tikto-calendar-api-canary
             port:
               number: 4300
-    - route:
+    - name: primary
+      route:
         - destination:
             host: tikto-calendar-api-stable
             port:
@@ -266,7 +270,7 @@ spec:
   hosts:
     - tikto-dashboard-api
   http:
-    - name: primary
+    - name: canary-header
       match:
         - headers:
             x-canary:
@@ -276,7 +280,8 @@ spec:
             host: tikto-dashboard-api-canary
             port:
               number: 4400
-    - route:
+    - name: primary
+      route:
         - destination:
             host: tikto-dashboard-api-stable
             port:

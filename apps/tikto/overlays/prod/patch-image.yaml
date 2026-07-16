@@ -55,6 +55,49 @@ spec:
       containers:
         - name: profile-api
           image: ghcr.io/flavoriy/tikto-profile:v2.0.10
+          imagePullPolicy: IfNotPresent
+          command:
+            - npm
+            - run
+            - service:profile:start
+          ports:
+            - name: http
+              containerPort: 4100
+          env:
+            - name: PORT
+              value: "4100"
+          envFrom:
+            - secretRef:
+                name: tikto-secret
+            - configMapRef:
+                name: tikto-config
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 4
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 50m
+              memory: 160Mi
+            limits:
+              cpu: 300m
+              memory: 320Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Rollout
@@ -66,6 +109,49 @@ spec:
       containers:
         - name: tasks-api
           image: ghcr.io/flavoriy/tikto-tasks:v2.0.10
+          imagePullPolicy: IfNotPresent
+          command:
+            - npm
+            - run
+            - service:tasks:start
+          ports:
+            - name: http
+              containerPort: 4200
+          env:
+            - name: PORT
+              value: "4200"
+          envFrom:
+            - secretRef:
+                name: tikto-secret
+            - configMapRef:
+                name: tikto-config
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 4
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 75m
+              memory: 192Mi
+            limits:
+              cpu: 400m
+              memory: 384Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Rollout
@@ -77,6 +163,49 @@ spec:
       containers:
         - name: calendar-api
           image: ghcr.io/flavoriy/tikto-calendar:v2.0.10
+          imagePullPolicy: IfNotPresent
+          command:
+            - npm
+            - run
+            - service:calendar:start
+          ports:
+            - name: http
+              containerPort: 4300
+          env:
+            - name: PORT
+              value: "4300"
+          envFrom:
+            - secretRef:
+                name: tikto-secret
+            - configMapRef:
+                name: tikto-config
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 4
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 75m
+              memory: 192Mi
+            limits:
+              cpu: 400m
+              memory: 384Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Rollout
@@ -88,6 +217,49 @@ spec:
       containers:
         - name: dashboard-api
           image: ghcr.io/flavoriy/tikto-dashboard:v2.0.10
+          imagePullPolicy: IfNotPresent
+          command:
+            - npm
+            - run
+            - service:dashboard:start
+          ports:
+            - name: http
+              containerPort: 4400
+          env:
+            - name: PORT
+              value: "4400"
+          envFrom:
+            - secretRef:
+                name: tikto-secret
+            - configMapRef:
+                name: tikto-config
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 4
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 50m
+              memory: 160Mi
+            limits:
+              cpu: 300m
+              memory: 320Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Rollout
@@ -99,3 +271,45 @@ spec:
       containers:
         - name: gateway
           image: ghcr.io/flavoriy/tikto-gateway:v2.0.10
+          imagePullPolicy: IfNotPresent
+          command:
+            - npm
+            - run
+            - service:gateway:start
+          ports:
+            - name: http
+              containerPort: 4000
+          env:
+            - name: PORT
+              value: "4000"
+          envFrom:
+            - secretRef:
+                name: tikto-secret
+            - configMapRef:
+                name: tikto-config
+          readinessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 4
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 300m
+              memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL

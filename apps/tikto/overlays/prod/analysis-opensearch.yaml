@@ -13,6 +13,7 @@ spec:
     successCondition: result.hits.total.value < 5
     provider:
       web:
+        method: POST
         url: https://vpc-tikto-prod-logs-bh7mmmai6lxjvrgtp7c7hl3iwm.ap-southeast-1.es.amazonaws.com/kubernetes-logs/_search
         headers:
           - key: Content-Type

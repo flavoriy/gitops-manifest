@@ -4,6 +4,9 @@ metadata:
   name: tikto-gateway
 spec:
   replicas: 1
+  analysis:                         
+    successfulRunHistoryLimit: 0     
+    unsuccessfulRunHistoryLimit: 0   
   revisionHistoryLimit: 5
   selector:
     matchLabels:

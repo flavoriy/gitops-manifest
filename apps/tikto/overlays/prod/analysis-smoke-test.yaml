@@ -10,6 +10,8 @@ spec:
     provider:
       job:
         spec:
+          ttlSecondsAfterFinished: 60
+          backoffLimit: 0
           template:
             spec:
               containers:
@@ -39,4 +41,3 @@ spec:
                   done
                   echo "✅ Smoke test PASSED successfully with 200 requests!"
               restartPolicy: Never
-          backoffLimit: 0

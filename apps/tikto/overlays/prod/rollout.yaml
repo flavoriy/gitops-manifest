@@ -17,9 +17,9 @@ spec:
           - templateName: tikto-smoke-test-template
       steps:
         - setWeight: 10
-        - pause: { duration: 5m }
+        - pause: { duration: 15m }
         - setWeight: 50
-        - pause: { duration: 10m }
+        - pause: {} # Infinite pause: requires manual promotion to complete the rollout
   revisionHistoryLimit: 5
   selector:
     matchLabels:

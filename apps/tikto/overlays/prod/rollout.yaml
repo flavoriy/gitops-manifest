@@ -3,6 +3,9 @@ kind: Rollout
 metadata:
   name: tikto
 spec:
+  analysis:                         
+    successfulRunHistoryLimit: 0    
+    unsuccessfulRunHistoryLimit: 0  
   strategy:
     canary:
       stableService: tikto-stable

@@ -7,7 +7,7 @@ spec:
     spec:
       containers:
         - name: tikto
-          image: ghcr.io/flavoriy/tikto-web:v2.0.3
+          image: ghcr.io/flavoriy/tikto-web:v2.0.4
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
@@ -54,7 +54,7 @@ spec:
     spec:
       containers:
         - name: profile-api
-          image: ghcr.io/flavoriy/tikto-profile:v2.0.3
+          image: ghcr.io/flavoriy/tikto-profile:v2.0.4
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -65,7 +65,7 @@ spec:
     spec:
       containers:
         - name: tasks-api
-          image: ghcr.io/flavoriy/tikto-tasks:v2.0.3
+          image: ghcr.io/flavoriy/tikto-tasks:v2.0.4
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -76,7 +76,7 @@ spec:
     spec:
       containers:
         - name: calendar-api
-          image: ghcr.io/flavoriy/tikto-calendar:v2.0.3
+          image: ghcr.io/flavoriy/tikto-calendar:v2.0.4
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -87,7 +87,7 @@ spec:
     spec:
       containers:
         - name: dashboard-api
-          image: ghcr.io/flavoriy/tikto-dashboard:v2.0.3
+          image: ghcr.io/flavoriy/tikto-dashboard:v2.0.4
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -98,4 +98,4 @@ spec:
     spec:
       containers:
         - name: gateway
-          image: ghcr.io/flavoriy/tikto-gateway:v2.0.3
+          image: ghcr.io/flavoriy/tikto-gateway:v2.0.4

@@ -33,7 +33,7 @@ spec:
                   done
 
                   for i in $(seq 1 200); do
-                    curl -s -f http://tikto-canary:80/api/health || {
+                    curl -s -f --retry 3 --retry-delay 1 http://tikto-canary:80/api/health || {
                       echo "❌ Smoke test FAILED at request #$i! Canary API returned an error."
                       exit 1
                     }

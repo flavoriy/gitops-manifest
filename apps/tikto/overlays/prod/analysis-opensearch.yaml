@@ -10,22 +10,103 @@ spec:
   - name: check-canary-errors
     interval: 1m
     failureLimit: 1
-    successCondition: result.hits.total.value < 5
     provider:
-      web:
-        method: POST
-        url: https://vpc-tikto-prod-logs-bh7mmmai6lxjvrgtp7c7hl3iwm.ap-southeast-1.es.amazonaws.com/kubernetes-logs/_search
-        headers:
-          - key: Content-Type
-            value: application/json
-        jsonBody:
-          query:
-            bool:
-              must:
-                - match:
-                    kubernetes.labels.rollouts-pod-template-hash: "{{args.canary-hash}}"
-                - match:
-                    log: "error failed exception"
-                - range:
-                    "@timestamp":
-                      gte: "now-2m"
+      job:
+        spec:
+          ttlSecondsAfterFinished: 30
+          backoffLimit: 0
+          template:
+            metadata:
+              annotations:
+                sidecar.istio.io/inject: "false"
+            spec:
+              containers:
+              - name: opensearch-checker
+                image: curlimages/curl:latest
+                env:
+                  - name: CANARY_HASH
+                    value: "{{args.canary-hash}}"
+                command:
+                - sh
+                - -c
+                - |
+                  echo "╔══════════════════════════════════════════════════╗"
+                  echo "║   🔍 OPENSEARCH ERROR CHECK — Canary Analysis   ║"
+                  echo "╚══════════════════════════════════════════════════╝"
+                  echo ""
+
+                  OS_URL="https://vpc-tikto-prod-logs-bh7mmmai6lxjvrgtp7c7hl3iwm.ap-southeast-1.es.amazonaws.com"
+                  INDEX="kubernetes-logs"
+                  THRESHOLD=5
+
+                  echo "📋 Configuration:"
+                  echo "   OpenSearch  : $OS_URL"
+                  echo "   Index       : $INDEX"
+                  echo "   Canary Hash : $CANARY_HASH"
+                  echo "   Time Window : last 2 minutes"
+                  echo "   Threshold   : < $THRESHOLD errors"
+                  echo ""
+
+                  echo "📋 Phase 1/2: Querying OpenSearch for canary error logs..."
+                  echo "   ────────────────────────────────────────────"
+
+                  QUERY=$(cat <<EOF
+                  {
+                    "query": {
+                      "bool": {
+                        "must": [
+                          { "match": { "kubernetes.labels.rollouts-pod-template-hash": "$CANARY_HASH" } },
+                          { "match": { "log": "error failed exception" } },
+                          { "range": { "@timestamp": { "gte": "now-2m" } } }
+                        ]
+                      }
+                    }
+                  }
+                  EOF
+                  )
+
+                  echo "   📤 Sending POST query to $OS_URL/$INDEX/_search"
+                  echo ""
+
+                  RESPONSE=$(curl -s -w "\n%{http_code}" \
+                    -X POST "$OS_URL/$INDEX/_search" \
+                    -H "Content-Type: application/json" \
+                    -d "$QUERY" 2>&1)
+
+                  HTTP_CODE=$(echo "$RESPONSE" | tail -n 1)
+                  BODY=$(echo "$RESPONSE" | sed '$d')
+
+                  echo "   📥 OpenSearch HTTP Status: $HTTP_CODE"
+                  echo ""
+
+                  if [ "$HTTP_CODE" != "200" ]; then
+                    echo "   ⚠️  OpenSearch returned non-200 status!"
+                    echo "   Response body:"
+                    echo "$BODY" | head -20
+                    echo ""
+                    echo "   🔴 VERDICT: OPENSEARCH CHECK FAILED (unreachable or error)"
+                    exit 1
+                  fi
+
+                  ERROR_COUNT=$(echo "$BODY" | grep -o '"total":{"value":[0-9]*' | head -1 | grep -o '[0-9]*$' || echo "0")
+
+                  echo "📋 Phase 2/2: Results Summary"
+                  echo "   ════════════════════════════════════════════"
+                  echo "   Error Logs Found : $ERROR_COUNT"
+                  echo "   Threshold        : < $THRESHOLD"
+                  echo "   ════════════════════════════════════════════"
+
+                  if [ "$ERROR_COUNT" -ge "$THRESHOLD" ]; then
+                    echo ""
+                    echo "   🔴 VERDICT: ERROR CHECK FAILED ($ERROR_COUNT errors >= $THRESHOLD threshold)"
+                    echo ""
+                    echo "   📜 Sample error logs from OpenSearch:"
+                    echo "$BODY" | grep -o '"log":"[^"]*"' | head -5 | while read line; do
+                      echo "      $line"
+                    done
+                    exit 1
+                  fi
+
+                  echo ""
+                  echo "   🟢 VERDICT: ERROR CHECK PASSED ($ERROR_COUNT errors < $THRESHOLD threshold)"
+              restartPolicy: Never

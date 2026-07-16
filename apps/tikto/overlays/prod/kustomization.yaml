@@ -16,6 +16,8 @@ resources:
   - analysis-smoke-test.yaml
   - istio-gateway.yaml
   - istio-virtualservice.yaml
+  - services-backend-canary.yaml
+  - rollouts-backend.yaml
 
 patches:
   - path: patch-image.yaml
@@ -33,6 +35,61 @@ patches:
       kind: Deployment
       metadata:
         name: tikto
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: tikto-profile-api
+    patch: |-
+      $patch: delete
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: tikto-profile-api
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: tikto-tasks-api
+    patch: |-
+      $patch: delete
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: tikto-tasks-api
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: tikto-calendar-api
+    patch: |-
+      $patch: delete
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: tikto-calendar-api
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: tikto-dashboard-api
+    patch: |-
+      $patch: delete
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: tikto-dashboard-api
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: tikto-gateway
+    patch: |-
+      $patch: delete
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: tikto-gateway
 
 commonLabels:
   app.kubernetes.io/instance: tikto-prod

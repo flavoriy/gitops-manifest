@@ -1,0 +1,304 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: tikto-gateway-stable
+  namespace: tikto-prod
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: tikto
+    app.kubernetes.io/component: gateway
+  ports:
+    - name: http
+      port: 4000
+      targetPort: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tikto-gateway-canary
+  namespace: tikto-prod
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: tikto
+    app.kubernetes.io/component: gateway
+  ports:
+    - name: http
+      port: 4000
+      targetPort: http
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: tikto-gateway-vs
+  namespace: tikto-prod
+spec:
+  hosts:
+    - tikto-gateway
+  http:
+    - name: primary
+      match:
+        - headers:
+            x-canary:
+              exact: "true"
+      route:
+        - destination:
+            host: tikto-gateway-canary
+            port:
+              number: 4000
+    - route:
+        - destination:
+            host: tikto-gateway-stable
+            port:
+              number: 4000
+          weight: 100
+        - destination:
+            host: tikto-gateway-canary
+            port:
+              number: 4000
+          weight: 0
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tikto-profile-api-stable
+  namespace: tikto-prod
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: tikto
+    app.kubernetes.io/component: profile-api
+  ports:
+    - name: http
+      port: 4100
+      targetPort: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tikto-profile-api-canary
+  namespace: tikto-prod
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: tikto
+    app.kubernetes.io/component: profile-api
+  ports:
+    - name: http
+      port: 4100
+      targetPort: http
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: tikto-profile-api-vs
+  namespace: tikto-prod
+spec:
+  hosts:
+    - tikto-profile-api
+  http:
+    - name: primary
+      match:
+        - headers:
+            x-canary:
+              exact: "true"
+      route:
+        - destination:
+            host: tikto-profile-api-canary
+            port:
+              number: 4100
+    - route:
+        - destination:
+            host: tikto-profile-api-stable
+            port:
+              number: 4100
+          weight: 100
+        - destination:
+            host: tikto-profile-api-canary
+            port:
+              number: 4100
+          weight: 0
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tikto-tasks-api-stable
+  namespace: tikto-prod
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: tikto
+    app.kubernetes.io/component: tasks-api
+  ports:
+    - name: http
+      port: 4200
+      targetPort: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tikto-tasks-api-canary
+  namespace: tikto-prod
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: tikto
+    app.kubernetes.io/component: tasks-api
+  ports:
+    - name: http
+      port: 4200
+      targetPort: http
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: tikto-tasks-api-vs
+  namespace: tikto-prod
+spec:
+  hosts:
+    - tikto-tasks-api
+  http:
+    - name: primary
+      match:
+        - headers:
+            x-canary:
+              exact: "true"
+      route:
+        - destination:
+            host: tikto-tasks-api-canary
+            port:
+              number: 4200
+    - route:
+        - destination:
+            host: tikto-tasks-api-stable
+            port:
+              number: 4200
+          weight: 100
+        - destination:
+            host: tikto-tasks-api-canary
+            port:
+              number: 4200
+          weight: 0
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tikto-calendar-api-stable
+  namespace: tikto-prod
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: tikto
+    app.kubernetes.io/component: calendar-api
+  ports:
+    - name: http
+      port: 4300
+      targetPort: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tikto-calendar-api-canary
+  namespace: tikto-prod
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: tikto
+    app.kubernetes.io/component: calendar-api
+  ports:
+    - name: http
+      port: 4300
+      targetPort: http
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: tikto-calendar-api-vs
+  namespace: tikto-prod
+spec:
+  hosts:
+    - tikto-calendar-api
+  http:
+    - name: primary
+      match:
+        - headers:
+            x-canary:
+              exact: "true"
+      route:
+        - destination:
+            host: tikto-calendar-api-canary
+            port:
+              number: 4300
+    - route:
+        - destination:
+            host: tikto-calendar-api-stable
+            port:
+              number: 4300
+          weight: 100
+        - destination:
+            host: tikto-calendar-api-canary
+            port:
+              number: 4300
+          weight: 0
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tikto-dashboard-api-stable
+  namespace: tikto-prod
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: tikto
+    app.kubernetes.io/component: dashboard-api
+  ports:
+    - name: http
+      port: 4400
+      targetPort: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tikto-dashboard-api-canary
+  namespace: tikto-prod
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: tikto
+    app.kubernetes.io/component: dashboard-api
+  ports:
+    - name: http
+      port: 4400
+      targetPort: http
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: tikto-dashboard-api-vs
+  namespace: tikto-prod
+spec:
+  hosts:
+    - tikto-dashboard-api
+  http:
+    - name: primary
+      match:
+        - headers:
+            x-canary:
+              exact: "true"
+      route:
+        - destination:
+            host: tikto-dashboard-api-canary
+            port:
+              number: 4400
+    - route:
+        - destination:
+            host: tikto-dashboard-api-stable
+            port:
+              number: 4400
+          weight: 100
+        - destination:
+            host: tikto-dashboard-api-canary
+            port:
+              number: 4400
+          weight: 0

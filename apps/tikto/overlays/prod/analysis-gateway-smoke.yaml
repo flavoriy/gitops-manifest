@@ -1,0 +1,46 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: tikto-gateway-smoke-test
+  namespace: tikto-prod
+spec:
+  metrics:
+  - name: run-smoke-test
+    failureLimit: 0
+    provider:
+      job:
+        spec:
+          ttlSecondsAfterFinished: 60
+          backoffLimit: 0
+          template:
+            metadata:
+              annotations:
+                sidecar.istio.io/inject: "false"
+            spec:
+              containers:
+              - name: traffic-generator
+                image: curlimages/curl:latest
+                command: 
+                - sh
+                - -c
+                - |
+                  echo "🚀 Starting automated smoke tests against Gateway Canary..."
+                  echo "⏳ Waiting for Gateway Canary service to be ready..."
+                  for attempt in $(seq 1 150); do
+                    if curl -s -f --connect-timeout 2 http://tikto-gateway-canary:4000/health > /dev/null; then
+                      echo "💚 Gateway Canary is ready!"
+                      break
+                    fi
+                    echo "...Gateway Canary not ready yet, retrying in 2 seconds (attempt $attempt/150)..."
+                    sleep 2
+                  done
+
+                  for i in $(seq 1 200); do
+                    curl -s -f --retry 3 --retry-delay 1 http://tikto-gateway-canary:4000/health || {
+                      echo "❌ Gateway Smoke test FAILED at request #$i!"
+                      exit 1
+                    }
+                    sleep 0.1
+                  done
+                  echo "✅ Gateway Smoke test PASSED successfully with 200 requests!"
+              restartPolicy: Never

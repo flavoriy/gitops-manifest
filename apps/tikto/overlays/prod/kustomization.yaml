@@ -15,6 +15,7 @@ resources:
   - rollout.yaml
   - analysis-smoke-test.yaml
   - analysis-opensearch.yaml
+  - analysis-gateway-smoke.yaml
   - istio-gateway.yaml
   - istio-virtualservice.yaml
   - services-backend-canary.yaml

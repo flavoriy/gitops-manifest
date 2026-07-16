@@ -21,6 +21,14 @@ spec:
             name: tikto-gateway-vs
             routes:
               - primary
+      analysis:
+        templates:
+          - templateName: tikto-gateway-smoke-test
+          - templateName: opensearch-error-check
+        args:
+          - name: canary-hash
+            valueFrom:
+              podTemplateHashValue: Latest
       steps:
         - setWeight: 10
         - pause: { duration: 1m }

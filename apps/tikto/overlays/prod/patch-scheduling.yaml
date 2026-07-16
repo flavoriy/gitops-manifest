@@ -31,8 +31,8 @@ spec:
                     app.kubernetes.io/name: tikto
                     app.kubernetes.io/component: web
 ---
-apiVersion: argoproj.io/v1alpha1
-kind: Rollout
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: tikto-profile-api
 spec:
@@ -46,8 +46,8 @@ spec:
             matchLabels:
               app.kubernetes.io/name: tikto-profile-api
 ---
-apiVersion: argoproj.io/v1alpha1
-kind: Rollout
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: tikto-tasks-api
 spec:
@@ -61,8 +61,8 @@ spec:
             matchLabels:
               app.kubernetes.io/name: tikto-tasks-api
 ---
-apiVersion: argoproj.io/v1alpha1
-kind: Rollout
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: tikto-calendar-api
 spec:
@@ -76,8 +76,8 @@ spec:
             matchLabels:
               app.kubernetes.io/name: tikto-calendar-api
 ---
-apiVersion: argoproj.io/v1alpha1
-kind: Rollout
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: tikto-dashboard-api
 spec:

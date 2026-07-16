@@ -45,8 +45,8 @@ spec:
               drop:
                 - ALL
 ---
-apiVersion: argoproj.io/v1alpha1
-kind: Rollout
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: tikto-profile-api
 spec:
@@ -99,8 +99,8 @@ spec:
               drop:
                 - ALL
 ---
-apiVersion: argoproj.io/v1alpha1
-kind: Rollout
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: tikto-tasks-api
 spec:
@@ -153,8 +153,8 @@ spec:
               drop:
                 - ALL
 ---
-apiVersion: argoproj.io/v1alpha1
-kind: Rollout
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: tikto-calendar-api
 spec:
@@ -207,8 +207,8 @@ spec:
               drop:
                 - ALL
 ---
-apiVersion: argoproj.io/v1alpha1
-kind: Rollout
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: tikto-dashboard-api
 spec:

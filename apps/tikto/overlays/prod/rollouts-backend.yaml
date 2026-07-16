@@ -2,7 +2,6 @@ apiVersion: argoproj.io/v1alpha1
 kind: Rollout
 metadata:
   name: tikto-profile-api
-  namespace: tikto-prod
 spec:
   replicas: 1
   revisionHistoryLimit: 5
@@ -86,7 +85,6 @@ apiVersion: argoproj.io/v1alpha1
 kind: Rollout
 metadata:
   name: tikto-tasks-api
-  namespace: tikto-prod
 spec:
   replicas: 1
   revisionHistoryLimit: 5
@@ -170,7 +168,6 @@ apiVersion: argoproj.io/v1alpha1
 kind: Rollout
 metadata:
   name: tikto-calendar-api
-  namespace: tikto-prod
 spec:
   replicas: 1
   revisionHistoryLimit: 5
@@ -254,7 +251,6 @@ apiVersion: argoproj.io/v1alpha1
 kind: Rollout
 metadata:
   name: tikto-dashboard-api
-  namespace: tikto-prod
 spec:
   replicas: 1
   revisionHistoryLimit: 5
@@ -338,7 +334,6 @@ apiVersion: argoproj.io/v1alpha1
 kind: Rollout
 metadata:
   name: tikto-gateway
-  namespace: tikto-prod
 spec:
   replicas: 1
   revisionHistoryLimit: 5

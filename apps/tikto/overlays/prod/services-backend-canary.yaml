@@ -2,7 +2,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: tikto-gateway-stable
-  namespace: tikto-prod
 spec:
   type: ClusterIP
   selector:
@@ -17,7 +16,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: tikto-gateway-canary
-  namespace: tikto-prod
 spec:
   type: ClusterIP
   selector:
@@ -32,7 +30,6 @@ apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
   name: tikto-gateway-vs
-  namespace: tikto-prod
 spec:
   hosts:
     - tikto-gateway
@@ -63,7 +60,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: tikto-profile-api-stable
-  namespace: tikto-prod
 spec:
   type: ClusterIP
   selector:
@@ -78,7 +74,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: tikto-profile-api-canary
-  namespace: tikto-prod
 spec:
   type: ClusterIP
   selector:
@@ -93,7 +88,6 @@ apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
   name: tikto-profile-api-vs
-  namespace: tikto-prod
 spec:
   hosts:
     - tikto-profile-api
@@ -124,7 +118,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: tikto-tasks-api-stable
-  namespace: tikto-prod
 spec:
   type: ClusterIP
   selector:
@@ -139,7 +132,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: tikto-tasks-api-canary
-  namespace: tikto-prod
 spec:
   type: ClusterIP
   selector:
@@ -154,7 +146,6 @@ apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
   name: tikto-tasks-api-vs
-  namespace: tikto-prod
 spec:
   hosts:
     - tikto-tasks-api
@@ -185,7 +176,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: tikto-calendar-api-stable
-  namespace: tikto-prod
 spec:
   type: ClusterIP
   selector:
@@ -200,7 +190,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: tikto-calendar-api-canary
-  namespace: tikto-prod
 spec:
   type: ClusterIP
   selector:
@@ -215,7 +204,6 @@ apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
   name: tikto-calendar-api-vs
-  namespace: tikto-prod
 spec:
   hosts:
     - tikto-calendar-api
@@ -246,7 +234,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: tikto-dashboard-api-stable
-  namespace: tikto-prod
 spec:
   type: ClusterIP
   selector:
@@ -261,7 +248,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: tikto-dashboard-api-canary
-  namespace: tikto-prod
 spec:
   type: ClusterIP
   selector:
@@ -276,7 +262,6 @@ apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
   name: tikto-dashboard-api-vs
-  namespace: tikto-prod
 spec:
   hosts:
     - tikto-dashboard-api

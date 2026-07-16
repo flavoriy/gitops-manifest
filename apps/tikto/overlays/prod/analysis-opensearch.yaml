@@ -13,7 +13,7 @@ spec:
     provider:
       job:
         spec:
-          ttlSecondsAfterFinished: 30
+          ttlSecondsAfterFinished: 600
           backoffLimit: 0
           template:
             metadata:
@@ -30,28 +30,32 @@ spec:
                 - sh
                 - -c
                 - |
-                  echo "╔══════════════════════════════════════════════════╗"
-                  echo "║   🔍 OPENSEARCH ERROR CHECK — Canary Analysis   ║"
-                  echo "╚══════════════════════════════════════════════════╝"
-                  echo ""
+                  TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
                   OS_URL="https://vpc-tikto-prod-logs-bh7mmmai6lxjvrgtp7c7hl3iwm.ap-southeast-1.es.amazonaws.com"
                   INDEX="kubernetes-logs"
                   THRESHOLD=5
 
-                  echo "📋 Configuration:"
-                  echo "   OpenSearch  : $OS_URL"
-                  echo "   Index       : $INDEX"
-                  echo "   Canary Hash : $CANARY_HASH"
-                  echo "   Time Window : last 2 minutes"
-                  echo "   Threshold   : < $THRESHOLD errors"
+                  echo "╔══════════════════════════════════════════════════════════╗"
+                  echo "║     🔍 OPENSEARCH ERROR CHECK — Canary Analysis         ║"
+                  echo "╠══════════════════════════════════════════════════════════╣"
+                  echo "║  Timestamp   : $TIMESTAMP"
+                  echo "║  OpenSearch  : $OS_URL"
+                  echo "║  Index       : $INDEX"
+                  echo "║  Canary Hash : $CANARY_HASH"
+                  echo "║  Time Window : last 2 minutes"
+                  echo "║  Threshold   : < $THRESHOLD errors"
+                  echo "╚══════════════════════════════════════════════════════════╝"
                   echo ""
 
-                  echo "📋 Phase 1/2: Querying OpenSearch for canary error logs..."
-                  echo "   ────────────────────────────────────────────"
+                  # ── Phase 1: Build & send query ──────────────────────────
+                  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                  echo "📋 Phase 1/3: Building OpenSearch DSL query..."
+                  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
                   QUERY=$(cat <<EOF
                   {
+                    "size": 5,
                     "query": {
                       "bool": {
                         "must": [
@@ -60,53 +64,75 @@ spec:
                           { "range": { "@timestamp": { "gte": "now-2m" } } }
                         ]
                       }
-                    }
+                    },
+                    "sort": [{ "@timestamp": "desc" }]
                   }
                   EOF
                   )
 
-                  echo "   📤 Sending POST query to $OS_URL/$INDEX/_search"
+                  echo "   Query filter:"
+                  echo "     - pod-template-hash = $CANARY_HASH"
+                  echo "     - log contains: error | failed | exception"
+                  echo "     - @timestamp >= now-2m"
                   echo ""
 
-                  RESPONSE=$(curl -s -w "\n%{http_code}" \
+                  # ── Phase 2: Execute query ───────────────────────────────
+                  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                  echo "📋 Phase 2/3: Querying OpenSearch..."
+                  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                  echo "   📤 POST $OS_URL/$INDEX/_search"
+
+                  RESPONSE=$(curl -s -w "\n%{http_code}|%{time_total}" \
                     -X POST "$OS_URL/$INDEX/_search" \
                     -H "Content-Type: application/json" \
                     -d "$QUERY" 2>&1)
 
-                  HTTP_CODE=$(echo "$RESPONSE" | tail -n 1)
+                  HTTP_LINE=$(echo "$RESPONSE" | tail -n 1)
+                  HTTP_CODE=$(echo "$HTTP_LINE" | cut -d'|' -f1)
+                  LATENCY=$(echo "$HTTP_LINE" | cut -d'|' -f2)
                   BODY=$(echo "$RESPONSE" | sed '$d')
 
-                  echo "   📥 OpenSearch HTTP Status: $HTTP_CODE"
+                  echo "   📥 Response: HTTP $HTTP_CODE (${LATENCY}s)"
                   echo ""
 
                   if [ "$HTTP_CODE" != "200" ]; then
-                    echo "   ⚠️  OpenSearch returned non-200 status!"
-                    echo "   Response body:"
-                    echo "$BODY" | head -20
+                    echo "   ⚠️  OpenSearch returned HTTP $HTTP_CODE!"
                     echo ""
-                    echo "   🔴 VERDICT: OPENSEARCH CHECK FAILED (unreachable or error)"
+                    echo "   Response body (first 500 chars):"
+                    echo "   ─────────────────────────────────"
+                    echo "$BODY" | head -c 500
+                    echo ""
+                    echo ""
+                    echo "🔴 VERDICT: OPENSEARCH UNREACHABLE OR ERROR"
                     exit 1
                   fi
 
+                  # ── Phase 3: Parse results ──────────────────────────────
                   ERROR_COUNT=$(echo "$BODY" | grep -o '"total":{"value":[0-9]*' | head -1 | grep -o '[0-9]*$' || echo "0")
+                  TOOK=$(echo "$BODY" | grep -o '"took":[0-9]*' | head -1 | grep -o '[0-9]*' || echo "?")
 
-                  echo "📋 Phase 2/2: Results Summary"
-                  echo "   ════════════════════════════════════════════"
-                  echo "   Error Logs Found : $ERROR_COUNT"
-                  echo "   Threshold        : < $THRESHOLD"
-                  echo "   ════════════════════════════════════════════"
+                  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                  echo "📋 Phase 3/3: Analysis Results"
+                  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                  echo "   OpenSearch query took : ${TOOK}ms"
+                  echo "   Error logs found      : $ERROR_COUNT"
+                  echo "   Failure threshold     : >= $THRESHOLD"
+                  echo ""
 
-                  if [ "$ERROR_COUNT" -ge "$THRESHOLD" ]; then
-                    echo ""
-                    echo "   🔴 VERDICT: ERROR CHECK FAILED ($ERROR_COUNT errors >= $THRESHOLD threshold)"
-                    echo ""
-                    echo "   📜 Sample error logs from OpenSearch:"
-                    echo "$BODY" | grep -o '"log":"[^"]*"' | head -5 | while read line; do
-                      echo "      $line"
+                  if [ "$ERROR_COUNT" -gt 0 ]; then
+                    echo "   📜 Recent error log samples:"
+                    echo "   ─────────────────────────────────"
+                    echo "$BODY" | grep -o '"log":"[^"]*"' | head -5 | while IFS= read -r line; do
+                      echo "     → $line"
                     done
+                    echo ""
+                  fi
+
+                  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                  if [ "$ERROR_COUNT" -ge "$THRESHOLD" ]; then
+                    echo "🔴 VERDICT: FAILED — $ERROR_COUNT error(s) found (threshold: $THRESHOLD)"
                     exit 1
                   fi
 
-                  echo ""
-                  echo "   🟢 VERDICT: ERROR CHECK PASSED ($ERROR_COUNT errors < $THRESHOLD threshold)"
+                  echo "🟢 VERDICT: PASSED — $ERROR_COUNT error(s) found (threshold: $THRESHOLD)"
               restartPolicy: Never

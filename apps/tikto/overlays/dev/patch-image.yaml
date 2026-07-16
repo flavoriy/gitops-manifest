@@ -7,7 +7,7 @@ spec:
     spec:
       containers:
         - name: tikto
-          image: ghcr.io/flavoriy/tikto-web:dev-42-e245fd2c799a9f982d1a61f2704bc7a64ea1feb9
+          image: ghcr.io/flavoriy/tikto-web:dev-43-166fba411bcb4fd082eef012af4027fe7daa228a
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: profile-api
-          image: ghcr.io/flavoriy/tikto-profile:dev-42-e245fd2c799a9f982d1a61f2704bc7a64ea1feb9
+          image: ghcr.io/flavoriy/tikto-profile:dev-43-166fba411bcb4fd082eef012af4027fe7daa228a
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -29,7 +29,7 @@ spec:
     spec:
       containers:
         - name: tasks-api
-          image: ghcr.io/flavoriy/tikto-tasks:dev-42-e245fd2c799a9f982d1a61f2704bc7a64ea1feb9
+          image: ghcr.io/flavoriy/tikto-tasks:dev-43-166fba411bcb4fd082eef012af4027fe7daa228a
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -40,7 +40,7 @@ spec:
     spec:
       containers:
         - name: calendar-api
-          image: ghcr.io/flavoriy/tikto-calendar:dev-42-e245fd2c799a9f982d1a61f2704bc7a64ea1feb9
+          image: ghcr.io/flavoriy/tikto-calendar:dev-43-166fba411bcb4fd082eef012af4027fe7daa228a
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -51,7 +51,7 @@ spec:
     spec:
       containers:
         - name: dashboard-api
-          image: ghcr.io/flavoriy/tikto-dashboard:dev-42-e245fd2c799a9f982d1a61f2704bc7a64ea1feb9
+          image: ghcr.io/flavoriy/tikto-dashboard:dev-43-166fba411bcb4fd082eef012af4027fe7daa228a
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -62,4 +62,4 @@ spec:
     spec:
       containers:
         - name: gateway
-          image: ghcr.io/flavoriy/tikto-gateway:dev-42-e245fd2c799a9f982d1a61f2704bc7a64ea1feb9
+          image: ghcr.io/flavoriy/tikto-gateway:dev-43-166fba411bcb4fd082eef012af4027fe7daa228a

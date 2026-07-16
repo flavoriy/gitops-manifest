@@ -16,6 +16,11 @@ spec:
       analysis:
         templates:
           - templateName: tikto-smoke-test-template
+          - templateName: opensearch-error-check
+        args:
+          - name: canary-hash
+            valueFrom:
+              podTemplateHashValue: Latest
       steps:
         - setWeight: 10
         - pause: { duration: 5m }

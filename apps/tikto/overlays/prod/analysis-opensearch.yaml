@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: opensearch-error-check
+  namespace: tikto-prod
+spec:
+  args:
+    - name: canary-hash
+  metrics:
+  - name: check-canary-errors
+    interval: 1m
+    failureLimit: 1
+    successCondition: result.hits.total.value < 5
+    provider:
+      web:
+        url: https://vpc-tikto-prod-logs-bh7mmmai6lxjvrgtp7c7hl3iwm.ap-southeast-1.es.amazonaws.com/kubernetes-logs/_search
+        headers:
+          - key: Content-Type
+            value: application/json
+        jsonBody:
+          query:
+            bool:
+              must:
+                - match:
+                    kubernetes.labels.rollouts-pod-template-hash: "{{args.canary-hash}}"
+                - match:
+                    log: "error failed exception"
+                - range:
+                    "@timestamp":
+                      gte: "now-2m"

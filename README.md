@@ -279,3 +279,103 @@ kubectl -n tikto-prod get pods -o wide
 - Keep environment-specific differences in overlays, not copied base manifests.
 - Keep image tags immutable and traceable to the application commit and CI/CD run.
 
+---
+
+## 🚀 E2E Canary Routing Architecture (Prod)
+
+The production environment implements a full **End-to-End Canary Deployment** strategy using **Argo Rollouts** integrated with **Istio Service Mesh**.
+
+```mermaid
+flowchart TD
+    %% Entry Point
+    Client[Client Request] -->|Internet| Ingress[AWS ALB Ingress]
+    Ingress -->|Route to Port 80| IstioGateway[Istio Ingress Gateway]
+    
+    %% Frontend Gateway Split (Weight-Based)
+    IstioGateway -->|VirtualService: tikto-virtual-service| WebStable[tikto-stable Service]
+    IstioGateway -->|10% Canary split| WebCanary[tikto-canary Service]
+    
+    %% Header Injection
+    WebCanary -->|Propagates Header| CanaryHeader["x-canary: true"]
+    WebStable -->|Normal Header| StableHeader["x-canary: false"]
+    
+    %% Downstream Service Mesh Routing (Header-Based)
+    CanaryHeader -->|VirtualService Match| GatewayCanary[tikto-gateway-canary]
+    StableHeader -->|Default Route| GatewayStable[tikto-gateway-stable]
+    
+    %% Downstream API Call Propagation
+    GatewayCanary -->|Propagates x-canary: true| ProfileCanary[tikto-profile-api-canary]
+    GatewayStable -->|Propagates x-canary: false| ProfileStable[tikto-profile-api-stable]
+```
+
+### 🛰️ Header Propagation
+Canary status is propagated downstream from the Frontend to all microservices:
+1. **Edge Split**: Argo Rollouts dynamically updates the Frontend `VirtualService` weight (e.g., 90% Stable / 10% Canary).
+2. **Trace Headers**: The Frontend Canary (`v2.0.10+`) extracts and appends incoming request headers (`x-canary` and `x-request-id`) to downstream fetch requests.
+3. **Downstream Routing**: Internal microservice `VirtualServices` match the `x-canary: "true"` header to route requests to their Canary pods, ensuring a client hitting the Frontend Canary gets a complete end-to-end Canary environment.
+
+---
+
+## 🛠️ Advanced Troubleshooting & Architecture Decisions
+
+This section documents the specific engineering fixes applied to make Kustomize, Argo CD, EKS, and Istio cooperate in a production cluster.
+
+### 1. Kustomize CRD List Override Issue (Strategic Merge Patch)
+* **The Problem**: Kustomize does not have built-in OpenAPI schema definitions for custom resources like `Rollout`. When applying strategic merge patches to lists (such as `spec.template.spec.containers`), Kustomize defaults to **replacing the entire list** rather than merging by the container `name` key. This wiped out crucial fields (probes, commands, env variables like `PROFILE_DATABASE_URL`) from our Rollout manifests, causing immediate application crashes.
+* **The Solution**: Maintain complete container specifications inside both `rollouts-backend.yaml` and `patch-image.yaml`. When Kustomize replaces the container list, it replaces the full list with an identical full list containing the updated production image tag.
+
+### 2. Immutable `spec.selector` in Rollout Resources
+* **The Problem**: In Kubernetes, `spec.selector` is immutable after creation. Attempting to add environment or instance labels to selectors to align with Service configurations will cause Argo CD sync runs to fail with: `strategic merge patch: spec.selector is immutable`.
+* **The Solution**: Manually delete the degraded Rollout resources from the cluster to allow Argo CD to create them fresh with the correct selectors:
+  ```powershell
+  kubectl delete rollout <rollout-name> -n tikto-prod
+  ```
+
+### 3. Resource Scheduling & EKS Node Capacity Limits
+* **The Problem**: Small AWS instances (e.g., `t3.medium`) have strict CPU, memory, and maximum Pod allocation limits (ENI limits set by AWS VPC CNI). Running 2 replicas stable + 1 replica canary for 5 backend services concurrently exceeded the node capacity, resulting in pods stuck in `Pending` with `Insufficient cpu/memory` and `Too many pods`.
+* **The Solution**:
+  1. Reduce default replica count to `1` in [patch-replicas.yaml](file:///D:/MT/Flavoriy/gitops-manifest/apps/tikto/overlays/prod/patch-replicas.yaml) for internal APIs.
+  2. Manually delete old orphaned `Deployment` ReplicaSets to free up resource slots and IPs:
+     ```powershell
+     kubectl delete rs -l app.kubernetes.io/name=tikto -n tikto-prod
+     ```
+
+### 4. Istio Job Sidecar Blocked Exit Issue (Smoke Tests)
+* **The Problem**: Kubernetes Job pods run a script and exit. However, when Istio injection is enabled on the namespace, the `istio-proxy` sidecar is injected into the Job pod. The proxy container runs indefinitely even after the main container finishes, preventing the Job from ever reaching `Completed` status and blocking the Argo Rollout analysis run.
+* **The Solution**: Add the `sidecar.istio.io/inject: "false"` annotation to the Job pod template metadata inside the [analysis-smoke-test.yaml](file:///D:/MT/Flavoriy/gitops-manifest/apps/tikto/overlays/prod/analysis-smoke-test.yaml):
+  ```yaml
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "false"
+  ```
+
+---
+
+## 🎛️ Useful Operational Commands
+
+### Monitor Rollout Progression
+```powershell
+# Get rollout status
+kubectl get rollout -n tikto-prod
+
+# Check VirtualService dynamic traffic weights
+kubectl get vs tikto-virtual-service -n tikto-prod -o yaml
+```
+
+### Inspect Pod Logs (Istio Multi-Container Pods)
+```powershell
+# Get logs of the application container
+kubectl logs <pod-name> -n tikto-prod -c <container-name>
+
+# Get logs of the envoy proxy sidecar container
+kubectl logs <pod-name> -n tikto-prod -c istio-proxy
+```
+
+### Force Synchronize OutOfSync resources
+```powershell
+# Clear local kustomize cached build drift by force-applying
+kubectl apply -k apps/tikto/overlays/prod
+```
+
+

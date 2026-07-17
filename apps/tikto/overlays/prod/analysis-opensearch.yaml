@@ -6,6 +6,8 @@ metadata:
 spec:
   args:
     - name: canary-hash
+    - name: step-weight
+      value: "unknown"
   metrics:
   - name: check-canary-errors
     failureLimit: 1
@@ -24,6 +26,8 @@ spec:
                 env:
                   - name: CANARY_HASH
                     value: "{{args.canary-hash}}"
+                  - name: STEP_WEIGHT
+                    value: "{{args.step-weight}}"
                 command:
                 - sh
                 - -c
@@ -34,7 +38,7 @@ spec:
                   INDEX="kubernetes-logs"
                   THRESHOLD=5
                   
-                  echo "[STEP] OpenSearch Error Check | canary-hash=$CANARY_HASH | started=$TIMESTAMP"
+                  echo "[STEP] OpenSearch Error Check | canary_weight=${STEP_WEIGHT}% | canary-hash=$CANARY_HASH | started=$TIMESTAMP"
                   echo "[INFO] target=$OS_URL/$INDEX window=2m threshold=$THRESHOLD"
                   
                   # ── Build & send query ──────────────────────────
@@ -71,7 +75,7 @@ spec:
                   
                   if [ "$HTTP_CODE" != "200" ]; then
                     echo "[INFO] response_body_preview=$(echo "$BODY" | head -c 300 | tr '\n' ' ')"
-                    echo "[RESULT] ERROR | opensearch unreachable, http_code=$HTTP_CODE"
+                    echo "[RESULT] ERROR | weight=${STEP_WEIGHT}% opensearch unreachable, http_code=$HTTP_CODE"
                     exit 1
                   fi
                   
@@ -89,9 +93,9 @@ spec:
                   fi
                   
                   if [ "$ERROR_COUNT" -ge "$THRESHOLD" ]; then
-                    echo "[RESULT] FAILED | errors=$ERROR_COUNT threshold=$THRESHOLD"
+                    echo "[RESULT] FAILED | weight=${STEP_WEIGHT}% errors=$ERROR_COUNT threshold=$THRESHOLD"
                     exit 1
                   fi
                   
-                  echo "[RESULT] PASSED | errors=$ERROR_COUNT threshold=$THRESHOLD"
+                  echo "[RESULT] PASSED | weight=${STEP_WEIGHT}% errors=$ERROR_COUNT threshold=$THRESHOLD"
               restartPolicy: Never

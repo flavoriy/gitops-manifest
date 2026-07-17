@@ -23,67 +23,63 @@ spec:
                 - sh
                 - -c
                 - |
-                START_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-                TARGET="http://tikto-canary:80/api/health"
-                
-                echo "[STEP] Canary Smoke Test — tikto (web) | target=$TARGET | started=$START_TIME"
-                
-                # ── Wait for readiness ──────────────────────────
-                READY=0
-                for attempt in $(seq 1 150); do
-                  TIMESTAMP=$(date -u +"%H:%M:%S")
-                  STATUS=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 2 "$TARGET" 2>/dev/null || echo "000")
-                  if [ "$STATUS" = "200" ]; then
-                    echo "[INFO] $TIMESTAMP ready after $attempt attempt(s), http_code=$STATUS"
-                    READY=1
-                    break
-                  fi
-                  if [ $((attempt % 10)) -eq 0 ]; then
-                    echo "[INFO] $TIMESTAMP waiting... attempt=$attempt/150 http_code=$STATUS"
-                  fi
-                  sleep 2
-                done
-                
-                if [ "$READY" = "0" ]; then
-                  echo "[RESULT] FAILED | canary never became healthy after 300s"
-                  exit 1
-                fi
-                
-                # ── Send traffic ────────────────────────────────
-                echo "[STEP] Sending 200 health-check requests..."
-                PASS=0
-                FAIL=0
-                for i in $(seq 1 200); do
-                  TIMESTAMP=$(date -u +"%H:%M:%S")
-                  RESP=$(curl -s -w "\n%{http_code}|%{time_total}" --retry 3 --retry-delay 1 "$TARGET")
-                  HTTP_CODE=$(echo "$RESP" | tail -1 | cut -d'|' -f1)
-                  LATENCY=$(echo "$RESP" | tail -1 | cut -d'|' -f2)
-                
-                  if [ "$HTTP_CODE" = "200" ]; then
-                    PASS=$((PASS + 1))
-                  else
-                    FAIL=$((FAIL + 1))
-                    echo "[INFO] $TIMESTAMP request #$i failed http_code=$HTTP_CODE latency=${LATENCY}s"
-                  fi
-                
-                  if [ $((i % 20)) -eq 0 ]; then
-                    echo "[PROGRESS] $i/200 | pass=$PASS fail=$FAIL"
-                  fi
-                  sleep 0.1
-                done
-                
-                # ── Summary ─────────────────────────────────────
-                END_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-                echo "[STEP] Final report | start=$START_TIME end=$END_TIME total=200 pass=$PASS fail=$FAIL rate=$((PASS * 100 / 200))%"
-                
-                if [ "$FAIL" -gt 0 ]; then
-                  echo "[RESULT] FAILED | $FAIL/200 requests failed"
-                  exit 1
-                fi
-                
-                echo "[RESULT] PASSED | 200/200 requests healthy"
+                  START_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+                  TARGET="http://tikto-canary:80/api/health"
+
+                  echo "[STEP] Canary Smoke Test — tikto (web) | target=$TARGET | started=$START_TIME"
+
+                  # ── Wait for readiness ──────────────────────────
+                  READY=0
+                  for attempt in $(seq 1 150); do
+                    TIMESTAMP=$(date -u +"%H:%M:%S")
+                    STATUS=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 2 "$TARGET" 2>/dev/null || echo "000")
+                    if [ "$STATUS" = "200" ]; then
+                      echo "[INFO] $TIMESTAMP ready after $attempt attempt(s), http_code=$STATUS"
+                      READY=1
+                      break
+                    fi
+                    if [ $((attempt % 10)) -eq 0 ]; then
+                      echo "[INFO] $TIMESTAMP waiting... attempt=$attempt/150 http_code=$STATUS"
+                    fi
+                    sleep 2
+                  done
+
+                  if [ "$READY" = "0" ]; then
+                    echo "[RESULT] FAILED | canary never became healthy after 300s"
                     exit 1
                   fi
 
-                  echo "🟢 VERDICT: SMOKE TEST PASSED — 200/200 requests healthy"
+                  # ── Send traffic ────────────────────────────────
+                  echo "[STEP] Sending 200 health-check requests..."
+                  PASS=0
+                  FAIL=0
+                  for i in $(seq 1 200); do
+                    TIMESTAMP=$(date -u +"%H:%M:%S")
+                    RESP=$(curl -s -w "\n%{http_code}|%{time_total}" --retry 3 --retry-delay 1 "$TARGET")
+                    HTTP_CODE=$(echo "$RESP" | tail -1 | cut -d'|' -f1)
+                    LATENCY=$(echo "$RESP" | tail -1 | cut -d'|' -f2)
+
+                    if [ "$HTTP_CODE" = "200" ]; then
+                      PASS=$((PASS + 1))
+                    else
+                      FAIL=$((FAIL + 1))
+                      echo "[INFO] $TIMESTAMP request #$i failed http_code=$HTTP_CODE latency=${LATENCY}s"
+                    fi
+
+                    if [ $((i % 20)) -eq 0 ]; then
+                      echo "[PROGRESS] $i/200 | pass=$PASS fail=$FAIL"
+                    fi
+                    sleep 0.1
+                  done
+
+                  # ── Summary ─────────────────────────────────────
+                  END_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+                  echo "[STEP] Final report | start=$START_TIME end=$END_TIME total=200 pass=$PASS fail=$FAIL rate=$((PASS * 100 / 200))%"
+
+                  if [ "$FAIL" -gt 0 ]; then
+                    echo "[RESULT] FAILED | $FAIL/200 requests failed"
+                    exit 1
+                  fi
+
+                  echo "[RESULT] PASSED | 200/200 requests healthy"
               restartPolicy: Never

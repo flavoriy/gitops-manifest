@@ -26,7 +26,7 @@ spec:
                   START_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
                   TARGET="http://tikto-gateway-canary:4000/health"
                   
-                  echo "[STEP] Canary Smoke Test — tikto-gateway" | target=$TARGET | started=$START_TIME"
+                  echo "[STEP] Canary Smoke Test — tikto-gateway | target=$TARGET | started=$START_TIME"
                   
                   # ── Wait for readiness ──────────────────────────
                   READY=0

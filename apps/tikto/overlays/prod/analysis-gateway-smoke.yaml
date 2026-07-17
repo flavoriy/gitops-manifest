@@ -4,6 +4,9 @@ metadata:
   name: tikto-gateway-smoke-test
   namespace: tikto-prod
 spec:
+  args:
+    - name: step-weight
+      value: "unknown"
   metrics:
   - name: run-smoke-test
     failureLimit: 0
@@ -19,6 +22,9 @@ spec:
               containers:
               - name: traffic-generator
                 image: curlimages/curl:latest
+                env:
+                  - name: STEP_WEIGHT
+                    value: "{{args.step-weight}}"
                 command: 
                 - sh
                 - -c
@@ -26,7 +32,7 @@ spec:
                   START_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
                   TARGET="http://tikto-gateway-canary:4000/health"
                   
-                  echo "[STEP] Canary Smoke Test — tikto-gateway | target=$TARGET | started=$START_TIME"
+                  echo "[STEP] Canary Smoke Test — tikto-gateway | canary_weight=${STEP_WEIGHT}% | target=$TARGET | started=$START_TIME"
                   
                   # ── Wait for readiness ──────────────────────────
                   READY=0
@@ -45,7 +51,7 @@ spec:
                   done
                   
                   if [ "$READY" = "0" ]; then
-                    echo "[RESULT] FAILED | canary never became healthy after 300s"
+                    echo "[RESULT] FAILED | weight=${STEP_WEIGHT}% canary never became healthy after 300s"
                     exit 1
                   fi
                   
@@ -77,9 +83,9 @@ spec:
                   echo "[STEP] Final report | start=$START_TIME end=$END_TIME total=200 pass=$PASS fail=$FAIL rate=$((PASS * 100 / 200))%"
                   
                   if [ "$FAIL" -gt 0 ]; then
-                    echo "[RESULT] FAILED | $FAIL/200 requests failed"
+                    echo "[RESULT] FAILED | weight=${STEP_WEIGHT}% $FAIL/200 requests failed"
                     exit 1
                   fi
                   
-                  echo "[RESULT] PASSED | 200/200 requests healthy"
+                  echo "[RESULT] PASSED | weight=${STEP_WEIGHT}% 200/200 requests healthy"
               restartPolicy: Never

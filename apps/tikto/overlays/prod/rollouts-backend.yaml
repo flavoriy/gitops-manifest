@@ -3,10 +3,10 @@ kind: Rollout
 metadata:
   name: tikto-gateway
 spec:
-  replicas: 1
-  analysis:                         
-    successfulRunHistoryLimit: 0     
-    unsuccessfulRunHistoryLimit: 0   
+  replicas: 2
+  analysis:
+    successfulRunHistoryLimit: 3
+    unsuccessfulRunHistoryLimit: 5
   revisionHistoryLimit: 5
   selector:
     matchLabels:
@@ -24,20 +24,42 @@ spec:
             name: tikto-gateway-vs
             routes:
               - primary
-      analysis:
-        templates:
-          - templateName: tikto-gateway-smoke-test
-          - templateName: opensearch-error-check
-        args:
-          - name: canary-hash
-            valueFrom:
-              podTemplateHashValue: Latest
       steps:
         - setWeight: 10
+        - analysis:
+            templates:
+              - templateName: tikto-gateway-smoke-test
+              - templateName: opensearch-error-check
+            args:
+              - name: canary-hash
+                valueFrom:
+                  podTemplateHashValue: Latest
+              - name: step-weight
+                value: "10"
         - pause: { duration: 1m }
         - setWeight: 50
+        - analysis:
+            templates:
+              - templateName: tikto-gateway-smoke-test
+              - templateName: opensearch-error-check
+            args:
+              - name: canary-hash
+                valueFrom:
+                  podTemplateHashValue: Latest
+              - name: step-weight
+                value: "50"
         - pause: { duration: 1m }
         - setWeight: 80
+        - analysis:
+            templates:
+              - templateName: tikto-gateway-smoke-test
+              - templateName: opensearch-error-check
+            args:
+              - name: canary-hash
+                valueFrom:
+                  podTemplateHashValue: Latest
+              - name: step-weight
+                value: "80"
         - pause: { duration: 1m }
   template:
     metadata:

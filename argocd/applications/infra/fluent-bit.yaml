@@ -1,0 +1,78 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: fluent-bit
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  project: default
+  source:
+    repoURL: https://fluent.github.io/helm-charts
+    chart: fluent-bit
+    targetRevision: 0.49.3
+    helm:
+      releaseName: fluent-bit
+      values: |
+        kind: DaemonSet
+        replicaCount: 1
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
+        config:
+          inputs: |
+            [INPUT]
+                Name              tail
+                Tag               kube.*
+                Path              /var/log/containers/*tikto*.log
+                Parser            cri
+                DB                /var/log/flb_kube_tikto.db
+                Mem_Buf_Limit     5MB
+                Skip_Long_Lines   On
+                Refresh_Interval  10
+          filters: |
+            [FILTER]
+                Name                kubernetes
+                Match               kube.*
+                Kube_URL            https://kubernetes.default.svc:443
+                Kube_CA_File        /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+                Kube_Token_File     /var/run/secrets/kubernetes.io/serviceaccount/token
+                Merge_Log           On
+                Keep_Log            Off
+                K8S-Logging.Parser  On
+                K8S-Logging.Exclude On
+          outputs: |
+            [OUTPUT]
+                Name            es
+                Match           kube.*
+                Host            vpc-tikto-prod-logs-bh7mmmai6lxjvrgtp7c7hl3iwm.ap-southeast-1.es.amazonaws.com
+                Port            443
+                TLS             On
+                TLS.Verify      Off
+                Index           kubernetes-logs
+                AWS_Auth        On
+                AWS_Region      ap-southeast-1
+                Logstash_Format On
+                Logstash_Prefix kubernetes-logs
+                Retry_Limit     2
+        tolerations:
+          - key: node-role.kubernetes.io/master
+            operator: Exists
+            effect: NoSchedule
+          - operator: Exists
+            effect: NoExecute
+          - operator: Exists
+            effect: NoSchedule
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: logging
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

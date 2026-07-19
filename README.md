@@ -55,7 +55,6 @@ flowchart TB
         DevGW --> DevTasks[Deployment: tasks]
         DevGW --> DevCalendar[Deployment: calendar]
         DevGW --> DevDashboard[Deployment: dashboard]
-        FluentDev[Fluent Bit DaemonSet] -.ships logs.-> OS
     end
 ```
 
@@ -65,7 +64,7 @@ flowchart TB
 - **Prod** puts an internet-facing **AWS ALB** in front. Under the hood, the ALB (in *instance* target mode) still targets a **NodePort** on the EKS worker nodes — that NodePort belongs to the `istio-ingressgateway` Service, not the app directly. Istio then routes into whichever Rollout (frontend/gateway) is currently receiving canary traffic.
 - Only the frontend and gateway get an ingress path / Rollout at all — `profile`, `tasks`, `calendar`, `dashboard` are internal-only Deployments reached through the gateway, in both environments.
 
-**Centralized logging:** a Fluent Bit DaemonSet runs in both clusters and ships pod logs to the same **AWS OpenSearch** domain (provisioned in `Infrastructure-as-Code`). In dev this is just for browsing/debugging in OpenSearch Dashboards; in prod it's also queried live by the `check-canary-errors` AnalysisRun to decide whether to promote or auto-rollback a canary.
+**Centralized logging (Prod only):** a Fluent Bit DaemonSet runs in the EKS cluster and ships pod logs to the **AWS OpenSearch** domain (provisioned in `Infrastructure-as-Code`). This is queried live by the `check-canary-errors` AnalysisRun to decide whether to promote or auto-rollback a canary. Dev has no logging pipeline — it's a throwaway environment for manifest sanity checks, not something worth centralizing logs for.
 
 | | **Dev (`overlays/dev`)** | **Prod (`overlays/prod`)** |
 |---|---|---|
@@ -73,7 +72,7 @@ flowchart TB
 | Access | Private, via Tailscale VPN only | Public, via AWS ALB → Istio Ingress (NodePort) |
 | Ingress | Direct NodePort per service | ALB → NodePort → Istio Ingress Gateway |
 | Rollout strategy | Standard Deployment (no canary) | Argo Rollouts canary with automated Analysis |
-| Logging | Fluent Bit → OpenSearch (manual browsing) | Fluent Bit → OpenSearch (also drives auto-rollback) |
+| Logging | None | Fluent Bit → OpenSearch, drives auto-rollback |
 | Rollback | Manual (`kubectl rollout undo`) | Automatic, triggered by log-based error analysis |
 | Purpose | Fast iteration, verify manifests before promoting | Real production traffic |
 

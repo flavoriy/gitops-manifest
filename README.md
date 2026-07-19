@@ -24,6 +24,63 @@ Key point: **the `tikto` repo never deploys directly**. It only builds/scans/pus
 
 ---
 
+## 🌱 Two environments, one repo
+
+This repo drives **two separate clusters** from the same Argo CD instance, using two Kustomize overlays (`overlays/dev` and `overlays/prod`). Same application, same base manifests — only the runtime target, ingress path, and delivery strategy differ.
+
+```mermaid
+flowchart TB
+    User[End User] -->|HTTPS 443| ALB["AWS ALB (internet-facing)"]
+    Admin[DevOps Engineer] -->|Tailscale VPN, private only| K3sNode[K3s Node]
+
+    subgraph ProdCluster["EKS Prod — namespace tikto-prod"]
+        ALB -->|target: NodePort 31380 on EKS worker| IstioSvc["Service: istio-ingressgateway (type: NodePort)"]
+        IstioSvc --> IstioPod[Istio Ingress Gateway Pod]
+        IstioPod --> FERollout["Rollout: tikto (frontend canary)"]
+        IstioPod --> GWRollout["Rollout: tikto-gateway (canary)"]
+        GWRollout --> ProfileP[Deployment: profile]
+        GWRollout --> TasksP[Deployment: tasks]
+        GWRollout --> CalendarP[Deployment: calendar]
+        GWRollout --> DashboardP[Deployment: dashboard]
+        FluentProd[Fluent Bit DaemonSet] -.ships logs.-> OS[(AWS OpenSearch)]
+        Analysis[AnalysisRun: check-canary-errors] -->|DSL query every cycle| OS
+        Analysis --> FERollout
+        Analysis --> GWRollout
+    end
+
+    subgraph DevCluster["K3s Dev — namespace tikto-dev, single EC2"]
+        K3sNode -->|"Service: tikto (type: NodePort 30080)"| DevFE[Deployment: tikto frontend]
+        K3sNode -->|"Service: tikto-gateway (type: NodePort 30081)"| DevGW[Deployment: tikto-gateway]
+        DevGW --> DevProfile[Deployment: profile]
+        DevGW --> DevTasks[Deployment: tasks]
+        DevGW --> DevCalendar[Deployment: calendar]
+        DevGW --> DevDashboard[Deployment: dashboard]
+        FluentDev[Fluent Bit DaemonSet] -.ships logs.-> OS
+    end
+```
+
+**Which uses NodePort, which uses ALB — and why:**
+
+- **Dev** exposes `tikto` and `tikto-gateway` as plain **NodePort** Services (e.g. `30080`, `30081`). There's no load balancer in front — the only way in is over the Tailscale VPN straight to the K3s node's IP, so a NodePort is enough and cheaper to run.
+- **Prod** puts an internet-facing **AWS ALB** in front. Under the hood, the ALB (in *instance* target mode) still targets a **NodePort** on the EKS worker nodes — that NodePort belongs to the `istio-ingressgateway` Service, not the app directly. Istio then routes into whichever Rollout (frontend/gateway) is currently receiving canary traffic.
+- Only the frontend and gateway get an ingress path / Rollout at all — `profile`, `tasks`, `calendar`, `dashboard` are internal-only Deployments reached through the gateway, in both environments.
+
+**Centralized logging:** a Fluent Bit DaemonSet runs in both clusters and ships pod logs to the same **AWS OpenSearch** domain (provisioned in `Infrastructure-as-Code`). In dev this is just for browsing/debugging in OpenSearch Dashboards; in prod it's also queried live by the `check-canary-errors` AnalysisRun to decide whether to promote or auto-rollback a canary.
+
+| | **Dev (`overlays/dev`)** | **Prod (`overlays/prod`)** |
+|---|---|---|
+| Cluster | K3s, single EC2 node | EKS, Spot Node Group (multi-node) |
+| Access | Private, via Tailscale VPN only | Public, via AWS ALB → Istio Ingress (NodePort) |
+| Ingress | Direct NodePort per service | ALB → NodePort → Istio Ingress Gateway |
+| Rollout strategy | Standard Deployment (no canary) | Argo Rollouts canary with automated Analysis |
+| Logging | Fluent Bit → OpenSearch (manual browsing) | Fluent Bit → OpenSearch (also drives auto-rollback) |
+| Rollback | Manual (`kubectl rollout undo`) | Automatic, triggered by log-based error analysis |
+| Purpose | Fast iteration, verify manifests before promoting | Real production traffic |
+
+Both Argo CD Applications point at the **same repo**, just different overlay paths — so a change to `apps/tikto/base` propagates to both environments, while anything under `overlays/dev` or `overlays/prod` stays environment-specific.
+
+---
+
 ## 📂 Repository Layout
 
 ```
